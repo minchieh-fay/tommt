@@ -115,5 +115,6 @@ public/blog/
 .tern-port
 
 # tmp
+tmp
 [1-9].txt
 [1-9].md
