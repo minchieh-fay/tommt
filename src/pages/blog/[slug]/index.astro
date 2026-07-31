@@ -1,0 +1,39 @@
+---
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { marked } from 'marked';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getArticles } from '../../../lib/articles';
+
+export async function getStaticPaths() {
+  const articles = await getArticles();
+  return articles.filter((article) => article.source === 'markdown').map((article) => ({ params: { slug: article.slug }, props: { article } }));
+}
+
+const { article } = Astro.props;
+const markdown = await readFile(join(process.cwd(), 'blog', article.slug, 'index.md'), 'utf8');
+const body = markdown.replace(/^#\s+.+$/m, '').trim();
+const html = await marked.parse(body);
+---
+<BaseLayout title={`${article.title} | TOMMT`}>
+  <article class="post">
+    <a class="back" href="/">← 返回文章列表</a>
+    <header><p>{article.date.replaceAll('-', '.')}</p><h1>{article.title}</h1></header>
+    <div class="content" set:html={html} />
+  </article>
+</BaseLayout>
+
+<style>
+  .post { padding: 58px 0 72px; }
+  .back { color: #9a6b3f; font-size: 13px; text-decoration: none; }
+  header { padding: 50px 0 38px; border-bottom: 1px solid #e4e4e1; }
+  header p { margin: 0 0 18px; color: #858580; font-size: 12px; }
+  h1 { margin: 0; font-family: Georgia, serif; font-size: 40px; font-weight: 400; line-height: 1.2; }
+  .content { padding-top: 36px; font-size: 16px; line-height: 1.85; }
+  .content :global(p) { margin: 0 0 22px; }
+  .content :global(img) { display: block; max-width: 100%; height: auto; margin: 28px 0; }
+  .content :global(a) { color: #9a6b3f; }
+  .content :global(code) { padding: 2px 5px; background: #efefeb; font-size: .9em; }
+  .content :global(pre) { overflow-x: auto; padding: 16px; background: #efefeb; }
+  @media (max-width: 600px) { .post { padding-top: 40px; } header { padding: 38px 0 30px; } h1 { font-size: 32px; } }
+</style>

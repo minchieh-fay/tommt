@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getArticles } from '../lib/articles';
+
+const articles = await getArticles();
+---
+<BaseLayout title="TOMMT | 文章">
+  <section class="articles" aria-label="文章列表">
+    {articles.map((article) => (
+      <a class="article" href={article.path}>
+        <div>
+          <h2>{article.title}</h2>
+          <p>{article.source === 'markdown' ? 'Markdown' : 'HTML'}</p>
+        </div>
+        <time datetime={article.date}>{article.date.replaceAll('-', '.')}</time>
+      </a>
+    ))}
+  </section>
+</BaseLayout>
+
+<style>
+  .articles { padding-top: 46px; border-top: 1px solid #e4e4e1; }
+  .article { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; padding: 24px 0; border-bottom: 1px solid #e4e4e1; color: inherit; text-decoration: none; }
+  .article h2 { margin: 0 0 8px; font-size: 19px; font-weight: 500; }
+  .article p, time { margin: 0; color: #858580; font-size: 12px; }
+  time { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+  .article:hover h2 { color: #9a6b3f; }
+  @media (max-width: 600px) { .articles { padding-top: 28px; } .article { align-items: flex-start; } .article h2 { font-size: 17px; } }
+</style>
